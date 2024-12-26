@@ -17,3 +17,6 @@ export type jobItemExpanded = jobItem & {
   reviews: string[];
   salary: string;
 };
+
+export type SortBy = "relevant" | "recent";
+export type PaginationDirection = "previous" | "next";
