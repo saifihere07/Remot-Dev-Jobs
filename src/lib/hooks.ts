@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { jobItem, jobItemExpanded } from "./types";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { handleError } from "./utils";
+import { BookmarksContext } from "../components/contexts/BookmarksContextProvider";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -36,6 +37,27 @@ export function useJobItem(id: number | null) {
   return { jobItem, isLoading } as const;
 }
 
+//===================================
+
+export function useJobItems(ids: number[]) {
+  const results = useQueries({
+    queries: ids.map((id) => ({
+      queryKey: ["job-item", id],
+      queryFn: async () => fetchJobitem(id),
+      staleTime: 1000 * 60 * 60,
+      refetchOnWindowFocus: false,
+      retry: false,
+      enabled: Boolean(id),
+      onError: handleError,
+    })),
+  });
+  const jobItems = results
+    .map((result) => result.data?.jobItem)
+    .filter((jobItem) => jobItem !== undefined);
+  const isLoading = results.some((result) => result.isLoading);
+  return { jobItems, isLoading };
+}
+
 //=================================
 
 // utility func
@@ -55,7 +77,7 @@ const fetchJobItems = async (
   const data = await response.json();
   return data;
 };
-export function useJobItems(searchText: string) {
+export function useSearchQuery(searchText: string) {
   const { data, isInitialLoading } = useQuery(
     ["job-items", searchText],
     async () => fetchJobItems(searchText),
@@ -100,4 +122,30 @@ export function useActiveId() {
     };
   }, []);
   return activeId;
+}
+
+export function useLocalStorage<T>(
+  key: string,
+  intialValue: T
+): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [value, setValue] = useState(() =>
+    JSON.parse(localStorage.getItem(key) || JSON.stringify(intialValue))
+  );
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [value, key]);
+  return [value, setValue] as const;
+}
+
+//================================================
+
+export function useBookmarksContext() {
+  const context = useContext(BookmarksContext);
+  if (!context) {
+    throw new Error(
+      "useContext(BookmarksContext) must be used within BookmarksContextProvider"
+    );
+  }
+  return context;
 }
