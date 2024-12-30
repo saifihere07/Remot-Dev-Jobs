@@ -1,11 +1,8 @@
-type SearchFormprops = {
-  searchText: string;
-  setSearchText: (searchText: string) => void;
-};
-export default function SearchForm({
-  searchText,
-  setSearchText,
-}: SearchFormprops) {
+import { useJobItemsandSearchTextContext } from "../lib/hooks";
+
+export default function SearchForm() {
+  const { searchText, handleChangeSearchText } =
+    useJobItemsandSearchTextContext();
   return (
     <form
       onSubmit={(e) => {
@@ -20,7 +17,7 @@ export default function SearchForm({
       <input
         value={searchText}
         onChange={(e) => {
-          setSearchText(e.target.value);
+          handleChangeSearchText(e.target.value);
         }}
         spellCheck="false"
         type="text"

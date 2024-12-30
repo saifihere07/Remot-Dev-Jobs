@@ -4,6 +4,7 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import { handleError } from "./utils";
 import { BookmarksContext } from "../components/contexts/BookmarksContextProvider";
 import { ActiveIdContext } from "../components/contexts/ActiveIdContextProvider";
+import { JobItemsandSearchTextContext } from "../components/contexts/JobItemsandSearchTextContextProvider";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -177,6 +178,16 @@ export function useActiveIdContext() {
   if (!context) {
     throw new Error(
       "useActiveIdContext must be used within ActiveIdContextProvider"
+    );
+  }
+  return context;
+}
+
+export function useJobItemsandSearchTextContext() {
+  const context = useContext(JobItemsandSearchTextContext);
+  if (!context) {
+    throw new Error(
+      "useJobItemsandSearchTextContext must be used within JobItemsandSearchTextContextProvider"
     );
   }
   return context;
