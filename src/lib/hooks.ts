@@ -3,8 +3,11 @@ import { jobItem, jobItemExpanded } from "./types";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { handleError } from "./utils";
 import { BookmarksContext } from "../components/contexts/BookmarksContextProvider";
+import { ActiveIdContext } from "../components/contexts/ActiveIdContextProvider";
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+// For Job items
 
 // utility func
 type fetchApiResponse = {
@@ -96,6 +99,8 @@ export function useSearchQuery(searchText: string) {
 
 //===================================
 
+// General / Resueable Custom Hooks
+
 export function useDebounce<T>(value: T, delay = 500): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -104,8 +109,6 @@ export function useDebounce<T>(value: T, delay = 500): T {
   }, [value, delay]);
   return debouncedValue;
 }
-
-//===================================
 
 export function useActiveId() {
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -138,13 +141,42 @@ export function useLocalStorage<T>(
   return [value, setValue] as const;
 }
 
+export function useOnClickOutside(
+  refs: React.RefObject<HTMLElement>[],
+  handler: () => void
+) {
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (refs.every((ref) => !ref.current?.contains(e.target as Node))) {
+        handler();
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [refs, handler]);
+}
+
 //================================================
+
+// For Contexts
 
 export function useBookmarksContext() {
   const context = useContext(BookmarksContext);
   if (!context) {
     throw new Error(
-      "useContext(BookmarksContext) must be used within BookmarksContextProvider"
+      "useBookmarksContext must be used within BookmarksContextProvider"
+    );
+  }
+  return context;
+}
+
+export function useActiveIdContext() {
+  const context = useContext(ActiveIdContext);
+  if (!context) {
+    throw new Error(
+      "useActiveIdContext must be used within ActiveIdContextProvider"
     );
   }
   return context;
